@@ -1,2 +1,3 @@
-# opengl-tutorial
-the churn OpenGL tutorial
+# OpenGL Tutorial
+
+the cherno OpenGL Tutorial
