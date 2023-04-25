@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <cassert>
 
 #define GLCall(x)   \
     GLClearError(); \
