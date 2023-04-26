@@ -1,37 +1,19 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <cassert>
 
-#define GLCall(x)   \
-    GLClearError(); \
-    x;              \
-    GLCheckError(#x, __FILE__, __LINE__);
+#include "index_buffer.h"
+#include "renderer.h"
+#include "vertex_buffer.h"
 
 struct ShaderProgramSource {
     std::string vertexSource;
     std::string fragmentSource;
 };
-
-static void GLClearError() {
-    // clang-format off
-    while (glGetError() != GL_NO_ERROR);
-    // clang-format on
-}
-
-static bool GLCheckError(const char *function, const char *file, int line) {
-    GLenum error = GL_NO_ERROR;
-    while ((error = glGetError()) != GL_NO_ERROR) {
-        std::cout << "[OpenGL error] (" << error << ") " 
-                  << function << " "
-                  << file << ":" << line << std::endl;
-        return true;
-    }
-    return false;
-}
 
 static ShaderProgramSource ParseShader(const std::string &filepath) {
     std::ifstream istream(filepath);
@@ -158,20 +140,13 @@ int main(void) {
     };
     // clang-format on
 
-    unsigned int buffer;
-    GLCall(glGenBuffers(1, &buffer));
-    GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer));
-    GLCall(glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), positions,
-                 GL_STATIC_DRAW));
+    VertexBuffer vb(positions, 4 * 2 * sizeof(float));
 
     GLCall(glEnableVertexAttribArray(0));
-    GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0));
+    GLCall(
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0));
 
-    unsigned int ibo;
-    GLCall(glGenBuffers(1, &ibo));
-    GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
-    GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices,
-                 GL_STATIC_DRAW));
+    IndexBuffer ib(indices, 6);
 
     ShaderProgramSource source = ParseShader("./res/shader/basic.shader");
     // std::cout << "Vertex" << std::endl;
@@ -205,7 +180,7 @@ int main(void) {
 
         GLCall(glBindVertexArray(vao));
 
-        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
+        ib.Bind();
 
         GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL));
 
