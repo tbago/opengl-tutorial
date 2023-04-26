@@ -137,12 +137,13 @@ int main(void) {
     std::cout << glGetString(GL_VERSION) << std::endl;
 
     // https://stackoverflow.com/questions/62990972/why-is-opengl-giving-me-the-error-error-01-version-330-is-not-support
-    unsigned int VBO = 0;
-    unsigned int VAO = 0;
-    GLCall(glGenBuffers(1, &VBO));
-    GLCall(glBindBuffer(GL_ARRAY_BUFFER, VBO));
-    GLCall(glGenVertexArrays(1, &VAO));
-    GLCall(glBindVertexArray(VAO));
+    unsigned int vbo = 0;
+    GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+    GLCall(glGenBuffers(1, &vbo));
+
+    unsigned int vao = 0;
+    GLCall(glGenVertexArrays(1, &vao));
+    GLCall(glBindVertexArray(vbo));
 
     // clang-format off
     float positions[] = {
@@ -189,12 +190,23 @@ int main(void) {
     float r = 0.0f;
     float increment = 0.05f;
 
+    GLCall(glBindVertexArray(0));
+    GLCall(glUseProgram(0));
+    GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window)) {
         /* Render here */
         GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
+        GLCall(glUseProgram(shader));
         GLCall(glUniform4f(location, r, 0.3f, 0.8f, 1.0f));
+
+        GLCall(glBindVertexArray(vao));
+
+        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
+
         GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL));
 
         if (r >= 1.0) {
@@ -211,8 +223,8 @@ int main(void) {
         glfwPollEvents();
     }
 
-    GLCall(glDeleteBuffers(1, &VBO));
-    GLCall(glDeleteVertexArrays(1, &VAO));
+    GLCall(glDeleteBuffers(1, &vbo));
+    GLCall(glDeleteVertexArrays(1, &vao));
 
     GLCall(glDeleteProgram(shader));
     glfwTerminate();
