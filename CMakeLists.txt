@@ -12,7 +12,7 @@ endif ()
 
 project(OpenGL)
 
-add_executable(${CMAKE_PROJECT_NAME} application.cc)
+add_executable(${CMAKE_PROJECT_NAME} application.cc renderer.cc vertex_buffer.cc index_buffer.cc)
 
 find_package(OpenGL REQUIRED)
 
